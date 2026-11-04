@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>chat</title>
+  <link rel="stylesheet" href="/css/style.css?v=7">
+</head>
+<body class="app-shell">
+  <aside class="sidebar">
+    <div class="side-head">
+      <span id="me-name"></span>
+      <span>
+        <button id="rename-me-btn">rename</button>
+        <button id="logout-btn">logout</button>
+      </span>
+    </div>
+    <ul id="conv-list"></ul>
+    <div class="side-actions">
+      <button id="new-group-btn">new group</button>
+    </div>
+  </aside>
+  <main class="chat-pane">
+    <div id="messages"></div>
+    <form class="composer" id="send-form">
+      <input id="send-input" placeholder="message…" autocomplete="off">
+      <button type="submit">send</button>
+    </form>
+  </main>
+  <aside id="members-panel" class="members-panel" hidden></aside>
+
+  <script type="module" src="/js/app.js?v=7"></script>
+</body>
+</html>

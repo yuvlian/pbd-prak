@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>debug views</title>
+  <style>
+    body {
+      font: 14px system-ui, sans-serif;
+      margin: 16px;
+    }
+
+    nav a {
+      margin-right: 12px;
+    }
+
+    nav a.active {
+      font-weight: bold;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+
+    td,
+    th {
+      border: 1px solid #999;
+      padding: 4px 8px;
+      font: 13px monospace;
+    }
+
+    th {
+      background: #eee;
+    }
+
+    td.null {
+      color: #aaa;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <nav id="links"></nav>
+  <div id="out"></div>
+
+  <script type="module">
+    const VIEWS = ['users', 'groups', 'conversations', 'conversation_members', 'messages'];
+
+    const nav = document.getElementById('links');
+    for (const v of VIEWS) {
+      const a = document.createElement('a');
+      a.href = `/debug/view/${v}`;
+      a.textContent = v;
+      a.addEventListener('click', (e) => { e.preventDefault(); load(v); });
+      nav.appendChild(a);
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/[&<>"]/g, (ch) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;',
+      })[ch]);
+    }
+
+    async function load(view) {
+      document.querySelectorAll('nav a').forEach((a, i) =>
+        a.classList.toggle('active', VIEWS[i] === view));
+      const res = await fetch(`/debug/view/${view}`);
+      if (!res.ok) {
+        document.getElementById('out').textContent = `error ${res.status}`;
+        return;
+      }
+      const { columns, rows } = await res.json();
+      const esc = escapeHtml;
+      document.getElementById('out').innerHTML = `
+        <table>
+          <tr>${columns.map((c) => `<th>${esc(c)}</th>`).join('')}</tr>
+          ${rows.map((r) =>
+        `<tr>${r.map((cell) =>
+          cell === 'NULL'
+            ? `<td class="null">NULL</td>`
+            : `<td>${esc(cell)}</td>`
+        ).join('')}</tr>`
+      ).join('')}
+        </table>`;
+    }
+
+    const initial = new URLSearchParams(location.search).get('view');
+    if (initial && VIEWS.includes(initial)) load(initial);
+  </script>
+</body>
+
+</html>

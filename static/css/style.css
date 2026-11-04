@@ -1,0 +1,270 @@
+/* reset + flex/grid scaffolding */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font: 14px system-ui, sans-serif;
+  height: 100vh;
+  display: flex;
+}
+
+input,
+button {
+  font: inherit;
+  padding: 6px 8px;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* auth page */
+.auth-page {
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-boxes {
+  display: flex;
+  gap: 32px;
+}
+
+.auth-boxes form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 240px;
+}
+
+.error {
+  color: #c00;
+  min-height: 1em;
+}
+
+/* chat shell: sidebar | chat pane */
+.app-shell {
+  display: flex;
+  width: 100%;
+}
+
+.sidebar {
+  width: 260px;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar .side-head {
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.side-head>span {
+  display: flex;
+  gap: 4px;
+}
+
+.sidebar ul {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.sidebar li {
+  padding: 8px 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.sidebar li.active {
+  background: #eee;
+}
+
+.presence-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #bbb;
+  margin-right: 6px;
+}
+
+.presence-dot.online {
+  background: #0a0;
+}
+
+.chat-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.members-panel {
+  width: 200px;
+  border-left: 1px solid #ccc;
+  padding: 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.members-panel .panel-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #888;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-bottom: 6px;
+}
+
+.members-panel .panel-title::before,
+.members-panel .panel-title::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid #ccc;
+}
+
+.members-panel ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.member-chip {
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  border-radius: 6px;
+}
+
+.member-chip:hover {
+  background: #eee;
+}
+
+.member-chip small {
+  opacity: .6;
+  margin-left: 4px;
+}
+
+.member-chip .presence-dot {
+  margin-right: 6px;
+  flex: none;
+}
+
+.kick-btn {
+  padding: 0 6px;
+  margin-left: auto;
+  border: none;
+  background: transparent;
+  color: #c00;
+  font-weight: bold;
+}
+
+.add-member button {
+  width: 100%;
+  padding: 4px;
+  border: none;
+  background: transparent;
+  color: #888;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.add-member button:hover {
+  background: #eee;
+}
+
+.conv-actions {
+  display: flex;
+  gap: 2px;
+}
+
+.conv-actions button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0 4px;
+  color: #888;
+}
+
+.conv-actions .conv-delete-btn,
+.conv-actions .conv-leave-btn {
+  color: #c00;
+  font-weight: bold;
+}
+
+.conv-actions button:hover {
+  color: #000;
+}
+
+.conv-actions .conv-delete-btn:hover,
+.conv-actions .conv-leave-btn:hover {
+  color: #c00;
+}
+
+#messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msg {
+  max-width: 60%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #eee;
+  align-self: flex-start;
+  overflow-wrap: anywhere;
+}
+
+.sysmsg {
+  align-self: center;
+  color: #888;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.msg.mine {
+  background: #06f;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.msg .meta {
+  font-size: 11px;
+  opacity: .7;
+}
+
+.composer {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid #ccc;
+}
+
+.composer input {
+  flex: 1;
+}
+
+.side-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+}
+
+.side-actions button {
+  flex: 1;
+}

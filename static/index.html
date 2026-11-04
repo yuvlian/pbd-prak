@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>chat — login</title>
+  <link rel="stylesheet" href="/css/style.css?v=7">
+</head>
+
+<body class="auth-page">
+  <div class="auth-boxes">
+    <form id="login-form">
+      <h2>login</h2>
+      <input id="login-username" placeholder="username" autocomplete="username">
+      <input id="login-password" type="password" placeholder="password" autocomplete="current-password">
+      <button type="submit">log in</button>
+      <p class="error" id="login-error"></p>
+    </form>
+
+    <form id="register-form">
+      <h2>register</h2>
+      <input id="reg-username" placeholder="username (3-32, a-z0-9_)">
+      <input id="reg-email" type="email" placeholder="email">
+      <input id="reg-password" type="password" placeholder="password (8-72)">
+      <button type="submit">create account</button>
+      <p class="error" id="reg-error"></p>
+    </form>
+  </div>
+
+  <script type="module">
+    import { api } from '/js/api.js?v=7';
+
+    const me = await api.get('/api/auth/me');
+    if (me.ok) location.href = '/app';
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('login-error');
+      err.textContent = '';
+      const res = await api.post('/api/auth/login', {
+        username: document.getElementById('login-username').value,
+        password: document.getElementById('login-password').value,
+      });
+      if (res.ok) location.href = '/app';
+      else err.textContent = (await res.json()).error ?? 'login failed';
+    });
+
+    document.getElementById('register-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('reg-error');
+      err.textContent = '';
+      const res = await api.post('/api/auth/register', {
+        username: document.getElementById('reg-username').value,
+        email: document.getElementById('reg-email').value,
+        password: document.getElementById('reg-password').value,
+      });
+      if (res.ok) location.href = '/app';
+      else err.textContent = (await res.json()).error ?? 'register failed';
+    });
+  </script>
+</body>
+
+</html>
