@@ -14,7 +14,7 @@ use sqlx::mysql::MySqlPoolOptions;
 
 use crate::ws::hub::ChatHub;
 
-#[tokio::main]
+#[actix_web::main]
 async fn main() -> io::Result<()> {
     dotenvy::dotenv_override().ok();
 
@@ -32,13 +32,6 @@ async fn main() -> io::Result<()> {
         .connect(&database_url)
         .await
         .expect("mysql pool connect failed");
-
-    sqlx::migrate!()
-        .run(&pool)
-        .await
-        .map_err(io::Error::other)?;
-
-    tracing::info!("migrations applied");
 
     let hub = ChatHub::default();
     let key = Key::from(session_secret.as_bytes());

@@ -1,1 +1,3 @@
 basic chat app for uni project ig
+
+not using sqlx's migrator at the moment cuz cant use delimiter w/ it 

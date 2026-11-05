@@ -1,6 +1,6 @@
-drop procedure if exists send_message;
-
 delimiter //
+
+drop procedure if exists send_message//
 
 create procedure send_message(
     in p_conversation_id int unsigned,
@@ -22,9 +22,6 @@ begin
     select last_insert_id() as message_id;
 end//
 
-delimiter ;
-
-delimiter //
 
 drop function if exists is_member//
 create function is_member(
@@ -40,9 +37,6 @@ begin
     );
 end//
 
-delimiter ;
-
-delimiter //
 
 drop trigger if exists prevent_cm_owner_delete//
 create trigger prevent_cm_owner_delete
