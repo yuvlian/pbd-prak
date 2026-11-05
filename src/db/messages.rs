@@ -27,17 +27,14 @@ async fn insert_typed(
     content: &str,
     type_id: u32,
 ) -> Result<MessageOut, AppError> {
-    let res = sqlx::query!(
-        "insert into messages (conversation_id, sender_id, type_id, content) values (?, ?, ?, ?)",
-        conversation_id,
-        sender_id,
-        type_id,
-        content
-    )
-    .execute(pool)
-    .await?;
+    let message_id: u32 = sqlx::query_scalar("call send_message(?, ?, ?, ?)")
+        .bind(conversation_id)
+        .bind(sender_id)
+        .bind(content)
+        .bind(type_id)
+        .fetch_one(pool)
+        .await?;
 
-    let message_id = res.last_insert_id() as u32;
     get_one(pool, message_id).await?.ok_or(AppError::NotFound)
 }
 

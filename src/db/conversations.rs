@@ -20,12 +20,7 @@ pub async fn assert_member(
     user_id: u32,
 ) -> Result<(), AppError> {
     let exists: bool = sqlx::query_scalar!(
-        r#"
-        select exists(
-            select 1 from conversation_members
-            where conversation_id = ? and user_id = ?
-        ) as "exists!: bool"
-        "#,
+        r#"select is_member(?, ?) as `exists!: bool`"#,
         conversation_id,
         user_id
     )
@@ -201,6 +196,7 @@ pub async fn remove_member(
     conversation_id: u32,
     user_id: u32,
 ) -> Result<(), AppError> {
+    // see prevent_cm_owner_delete trigger
     let res = sqlx::query!(
         "delete from conversation_members
          where conversation_id = ? and user_id = ? and group_role_id <> ?",
@@ -209,26 +205,24 @@ pub async fn remove_member(
         GroupRole::Owner.id()
     )
     .execute(pool)
-    .await?;
+    .await
+    .map_err(owner_delete_violation)?;
 
     if res.rows_affected() == 0 {
-        let is_owner: i64 = sqlx::query_scalar!(
-            "select count(*) from conversation_members
-             where conversation_id = ? and user_id = ? and group_role_id = ?",
-            conversation_id,
-            user_id,
-            GroupRole::Owner.id()
-        )
-        .fetch_one(pool)
-        .await?;
-
-        if is_owner > 0 {
-            return Err(AppError::BadRequest("cannot remove the group owner".into()));
-        }
-
         return Err(AppError::NotFound);
     }
     Ok(())
+}
+
+fn owner_delete_violation(e: sqlx::Error) -> AppError {
+    match e {
+        sqlx::Error::Database(d)
+            if d.message().contains("cannot remove the group owner") =>
+        {
+            AppError::BadRequest("cannot remove the group owner".into())
+        }
+        e => e.into(),
+    }
 }
 
 // false if no change
@@ -253,6 +247,10 @@ pub async fn rename_group(
 pub async fn delete_group(pool: &MySqlPool, conversation_id: u32) -> Result<(), AppError> {
     let mut tx: Transaction<'_, MySql> = pool.begin().await?;
 
+    sqlx::query!("set @bypass_owner_trigger = 1")
+        .execute(&mut *tx)
+        .await?;
+
     let gid: u32 = sqlx::query_scalar!(
         "select group_id from conversations where conversation_id = ?",
         conversation_id
@@ -273,7 +271,8 @@ pub async fn delete_group(pool: &MySqlPool, conversation_id: u32) -> Result<(), 
         conversation_id
     )
     .execute(&mut *tx)
-    .await?;
+    .await
+    .map_err(owner_delete_violation)?;
 
     sqlx::query!(
         "delete from conversations where conversation_id = ?",
@@ -283,6 +282,10 @@ pub async fn delete_group(pool: &MySqlPool, conversation_id: u32) -> Result<(), 
     .await?;
 
     sqlx::query!("delete from `groups` where group_id = ?", gid)
+        .execute(&mut *tx)
+        .await?;
+
+    sqlx::query!("set @bypass_owner_trigger = null")
         .execute(&mut *tx)
         .await?;
 
