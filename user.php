@@ -13,25 +13,15 @@ if (is_post()) {
 
         if (post_str('act') === 'delete') {
             run_query('delete from user where iduser = ?', 'i', $cur);
-        } elseif ($cur > 0 && $password === '') {
-            run_query('update user set username = ?, idrole = ? where iduser = ?', 'sii', $username, $idrole, $cur);
-        } elseif ($cur > 0) {
+        } else {
             run_query(
-                'update user set username = ?, password = sha2(?, 256), idrole = ? where iduser = ?',
-                'sisi',
+                'call sp_simpan_user(?, ?, ?, ?, ?)',
+                'issii',
+                $cur > 0 ? $cur : post_int('iduser'),
                 $username,
                 $password,
                 $idrole,
-                $cur
-            );
-        } else {
-            run_query(
-                'insert into user (iduser, username, password, idrole) values (?, ?, sha2(?, 256), ?)',
-                'issi',
-                post_int('iduser'),
-                $username,
-                $password,
-                $idrole
+                $cur > 0 ? 1 : 0
             );
         }
 
