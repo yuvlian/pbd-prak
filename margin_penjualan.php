@@ -18,7 +18,7 @@ if (is_post()) {
         } elseif ($cur > 0) {
             run_query(
                 'update margin_penjualan
-                    set created_at = ?, persen = ?, status = ?, iduser = ?, updated_at = now()
+                    set created_at = ?, persen = ?, status = ?, iduser = ?
                   where idmargin_penjualan = ?',
                 'sdiii',
                 $created,

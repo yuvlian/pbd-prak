@@ -58,7 +58,8 @@ if (isset($_GET['edit'])) {
 
 $satuan = rows('select idsatuan, nama_satuan from v_satuan order by idsatuan');
 $rows   = rows(
-    'select idbarang, jenis, jenis_teks, nama, idsatuan, nama_satuan, status, status_teks, harga
+    'select idbarang, jenis, jenis_teks, nama, idsatuan, nama_satuan, status, status_teks, harga,
+            fn_stok_barang(idbarang) as stok
        from v_barang
       order by idbarang'
 );
@@ -116,6 +117,7 @@ page_start('barang', $err);
         <th>status</th>
         <th>status_teks</th>
         <th>harga</th>
+        <th>stok</th>
         <th>aksi</th>
     </tr>
     <?php foreach ($rows as $r): ?>
@@ -129,6 +131,7 @@ page_start('barang', $err);
             <td><?= e($r['status']) ?></td>
             <td><?= e($r['status_teks']) ?></td>
             <td><?= e($r['harga']) ?></td>
+            <td><?= e($r['stok']) ?></td>
             <td>
                 <a href="barang.php?edit=<?= e($r['idbarang']) ?>">edit</a>
                 <form method="post" class="inline" onsubmit="return confirm('hapus?')">
