@@ -1,0 +1,5 @@
+select dari view dibikin bintang
+
+SP terima pengadaan dibikin bisa dicicik
+
+frontend terima pengadaan dibikin kyk checkout olshop
