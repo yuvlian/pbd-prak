@@ -11,7 +11,7 @@ $menu = [
     'barang'           => 'v_barang',
 ];
 
-page_start('pbd_prak');
+page_start('owobat');
 
 foreach ($menu as $page => $view) {
     $jumlah = row('select count(*) as n from ' . $view)['n'];

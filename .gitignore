@@ -1,4 +1,2 @@
-/target
+/ref
 .env
-*.lock
-lmao.ps1
