@@ -76,3 +76,29 @@ function page_end(): void
 {
     echo '</body></html>';
 }
+
+const PPN_PERSEN = 11;
+
+function begin(): void
+{
+    global $db;
+    $db->begin_transaction();
+}
+
+function commit(): void
+{
+    global $db;
+    $db->commit();
+}
+
+function rollback(): void
+{
+    global $db;
+    $db->rollback();
+}
+
+function insert_id(): int
+{
+    global $db;
+    return (int) $db->insert_id;
+}

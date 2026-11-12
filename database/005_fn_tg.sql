@@ -12,7 +12,7 @@ begin
 
     select coalesce(sum(masuk - keluar), 0) into total
       from kartu_stok
-     where idbarang = p_idbarang;
+     where barang_idbarang = p_idbarang;
 
     return total;
 end//

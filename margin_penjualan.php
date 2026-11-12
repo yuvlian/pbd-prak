@@ -18,7 +18,7 @@ if (is_post()) {
         } elseif ($cur > 0) {
             run_query(
                 'update margin_penjualan
-                    set created_at = ?, persen = ?, status = ?, iduser = ?
+                    set created_at = ?, persen = ?, status = ?, user_iduser = ?
                   where idmargin_penjualan = ?',
                 'sdiii',
                 $created,
@@ -29,7 +29,7 @@ if (is_post()) {
             );
         } else {
             run_query(
-                'insert into margin_penjualan (idmargin_penjualan, created_at, persen, status, iduser)
+                'insert into margin_penjualan (idmargin_penjualan, created_at, persen, status, user_iduser)
                  values (?, ?, ?, ?, ?)',
                 'isdii',
                 post_int('idmargin_penjualan'),

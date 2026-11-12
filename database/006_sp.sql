@@ -11,17 +11,17 @@ create procedure sp_simpan_user(
 )
 begin
     if p_is_update = 0 then
-        insert into user (iduser, username, password, idrole)
+        insert into user (iduser, username, password, role_idrole)
         values (p_iduser, p_username, sha2(p_password, 256), p_idrole);
     elseif p_password = '' then
         update user
-           set username = p_username, idrole = p_idrole
+           set username = p_username, role_idrole = p_idrole
          where iduser = p_iduser;
     else
         update user
            set username = p_username,
                password = sha2(p_password, 256),
-               idrole   = p_idrole
+               role_idrole = p_idrole
          where iduser = p_iduser;
     end if;
 end//

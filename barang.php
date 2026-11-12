@@ -17,7 +17,7 @@ if (is_post()) {
             run_query('delete from barang where idbarang = ?', 'i', $cur);
         } elseif ($cur > 0) {
             run_query(
-                'update barang set jenis = ?, nama = ?, idsatuan = ?, status = ?, harga = ?
+                'update barang set jenis = ?, nama = ?, satuan_idsatuan = ?, status = ?, harga = ?
                   where idbarang = ?',
                 'ssiiii',
                 $jenis,
@@ -29,7 +29,7 @@ if (is_post()) {
             );
         } else {
             run_query(
-                'insert into barang (idbarang, jenis, nama, idsatuan, status, harga)
+                'insert into barang (idbarang, jenis, nama, satuan_idsatuan, status, harga)
                  values (?, ?, ?, ?, ?, ?)',
                 'issiii',
                 post_int('idbarang'),
@@ -50,7 +50,7 @@ if (is_post()) {
 $edit = null;
 if (isset($_GET['edit'])) {
     $edit = row(
-        'select idbarang, jenis, nama, idsatuan, status, harga from v_barang where idbarang = ?',
+        'select idbarang, jenis, nama, satuan_idsatuan, status, harga from v_barang where idbarang = ?',
         'i',
         (int) $_GET['edit']
     );
@@ -58,9 +58,8 @@ if (isset($_GET['edit'])) {
 
 $satuan = rows('select idsatuan, nama_satuan from v_satuan order by idsatuan');
 $rows   = rows(
-    'select idbarang, jenis, jenis_teks, nama, idsatuan, nama_satuan, status, status_teks, harga,
-            fn_stok_barang(idbarang) as stok
-       from v_barang
+    'select idbarang, jenis, jenis_teks, nama, idsatuan, nama_satuan, status, status_teks, harga, stok
+       from v_stok_barang
       order by idbarang'
 );
 
