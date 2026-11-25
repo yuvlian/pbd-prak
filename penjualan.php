@@ -4,40 +4,43 @@ require 'config.php';
 
 $err = '';
 
-$margin = row('select idmargin_penjualan, persen from margin_penjualan where status = 1 limit 1');
-
-if (!$margin) {
-    $err = 'Belum ada margin penjualan aktif.';
-}
-
 $users = rows('select * from v_user order by iduser');
-$daftar = $margin
-    ? rows('select * from v_stok_barang where status = 1 order by nama')
-    : [];
+$daftar = rows("select * from v_stok_barang where status_teks = 'Aktif' order by nama");
+
+$margin_user = [];
+foreach (rows('select user_iduser, idmargin_penjualan, persen from margin_penjualan where status = 1') as $m) {
+    $margin_user[(int) $m['user_iduser']] = $m;
+}
 
 if (is_post()) {
     try {
-        $margin   = row('select idmargin_penjualan, persen from margin_penjualan where status = 1 limit 1');
         $idbarang = post_int('idbarang');
         $iduser   = post_int('iduser');
         $jumlah   = post_int('jumlah');
 
-        $b = row('select * from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
+        $margin = row(
+            'select idmargin_penjualan, persen from margin_penjualan
+              where status = 1 and user_iduser = ? limit 1',
+            'i',
+            $iduser
+        );
+
+        $b = row("select * from v_barang where idbarang = ? and status_teks = 'Aktif'", 'i', $idbarang);
         $stok = $b
             ? (int) row('select * from v_stok_barang where idbarang = ?', 'i', $idbarang)['stok']
             : 0;
         $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
-        if (!$margin) {
-            $err = 'Belum ada margin penjualan aktif.';
+        if (!$u) {
+            $err = 'User tidak ditemukan.';
+        } elseif (!$margin) {
+            $err = 'User ini belum punya margin penjualan aktif.';
         } elseif (!$b) {
             $err = 'Barang tidak ditemukan atau sudah tidak aktif.';
         } elseif ($jumlah < 1) {
             $err = 'Jumlah harus lebih dari nol.';
         } elseif ($jumlah > $stok) {
             $err = 'Stok tidak mencukupi untuk transaksi ini.';
-        } elseif (!$u) {
-            $err = 'User tidak ditemukan.';
         } else {
             $harga      = (int) $b['harga'];
             $harga_jual = (int) round($harga + $harga * (float) $margin['persen'] / 100);
@@ -111,8 +114,7 @@ $rows = rows('select * from v_penjualan order by idpenjualan desc');
 
 page_start('penjualan', $err);
 ?>
-<?php if ($margin): ?>
-    <p>margin aktif: <?= e($margin['persen']) ?>%</p>
+<?php if ($daftar): ?>
     <table>
         <tr>
             <th>idbarang</th>
@@ -148,8 +150,9 @@ page_start('penjualan', $err);
         <p>user
             <select name="iduser">
                 <?php foreach ($users as $u): ?>
+                    <?php $mu = $margin_user[(int) $u['iduser']] ?? null; ?>
                     <option value="<?= e($u['iduser']) ?>">
-                        <?= e($u['iduser'] . ' - ' . $u['username']) ?>
+                        <?= e($u['iduser'] . ' - ' . $u['username']) ?><?= $mu ? ' (margin ' . e($mu['persen']) . '%)' : ' (tanpa margin)' ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -160,11 +163,40 @@ page_start('penjualan', $err);
     </form>
 <?php endif; ?>
 
+<br>
+<table>
+    <tr>
+        <th>id</th>
+        <th>tanggal</th>
+        <th>status_teks</th>
+        <th>user</th>
+        <th>margin</th>
+        <th>subtotal</th>
+        <th>ppn</th>
+        <th>total</th>
+        <th>aksi</th>
+    </tr>
+    <?php foreach ($rows as $r): ?>
+        <tr>
+            <td><?= e($r['idpenjualan']) ?></td>
+            <td><?= e($r['created_at']) ?></td>
+            <td><?= e($r['status_teks']) ?></td>
+            <td><?= e($r['username']) ?></td>
+            <td><?= e($r['margin_persen']) ?></td>
+            <td><?= e($r['subtotal_nilai']) ?></td>
+            <td><?= e($r['ppn']) ?></td>
+            <td><?= e($r['total_nilai']) ?></td>
+            <td>
+                <a href="penjualan.php?id=<?= e($r['idpenjualan']) ?>">detail</a>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</table>
+
 <?php if ($head): ?>
     <h2>penjualan <?= e($head['idpenjualan']) ?></h2>
     <table>
         <tr><th>tanggal</th><td><?= e($head['created_at']) ?></td></tr>
-        <tr><th>status</th><td><?= e($head['status']) ?></td></tr>
         <tr><th>status_teks</th><td><?= e($head['status_teks']) ?></td></tr>
         <tr><th>user</th><td><?= e($head['username']) ?></td></tr>
         <tr><th>margin</th><td><?= e($head['margin_persen']) ?>%</td></tr>
@@ -172,6 +204,7 @@ page_start('penjualan', $err);
         <tr><th>ppn</th><td><?= e($head['ppn']) ?></td></tr>
         <tr><th>total</th><td><?= e($head['total_nilai']) ?></td></tr>
     </table>
+    <br>
     <table>
         <tr>
             <th>barang</th>
@@ -192,34 +225,4 @@ page_start('penjualan', $err);
     </table>
 <?php endif; ?>
 
-<table>
-    <tr>
-        <th>id</th>
-        <th>tanggal</th>
-        <th>status</th>
-        <th>status_teks</th>
-        <th>user</th>
-        <th>margin</th>
-        <th>subtotal</th>
-        <th>ppn</th>
-        <th>total</th>
-        <th>aksi</th>
-    </tr>
-    <?php foreach ($rows as $r): ?>
-        <tr>
-            <td><?= e($r['idpenjualan']) ?></td>
-            <td><?= e($r['created_at']) ?></td>
-            <td><?= e($r['status']) ?></td>
-            <td><?= e($r['status_teks']) ?></td>
-            <td><?= e($r['username']) ?></td>
-            <td><?= e($r['margin_persen']) ?></td>
-            <td><?= e($r['subtotal_nilai']) ?></td>
-            <td><?= e($r['ppn']) ?></td>
-            <td><?= e($r['total_nilai']) ?></td>
-            <td>
-                <a href="penjualan.php?id=<?= e($r['idpenjualan']) ?>">detail</a>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
 <?php page_end(); ?>

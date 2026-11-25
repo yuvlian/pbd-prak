@@ -4,8 +4,8 @@ require 'config.php';
 
 $err = '';
 
-$vendors = rows("select * from v_vendor where status = 'A' order by nama_vendor");
-$stok    = rows('select * from v_stok_barang where status = 1 order by nama');
+$vendors = rows("select * from v_vendor where status_teks = 'Aktif' order by nama_vendor");
+$stok    = rows("select * from v_stok_barang where status_teks = 'Aktif' order by nama");
 $users   = rows('select * from v_user order by iduser');
 
 if (is_post()) {
@@ -15,8 +15,8 @@ if (is_post()) {
         $iduser   = post_int('iduser');
         $jumlah   = post_int('jumlah');
 
-        $b = row('select * from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
-        $v = row("select * from v_vendor where idvendor = ? and status = 'A'", 'i', $idvendor);
+        $b = row("select * from v_barang where idbarang = ? and status_teks = 'Aktif'", 'i', $idbarang);
+        $v = row("select * from v_vendor where idvendor = ? and status_teks = 'Aktif'", 'i', $idvendor);
         $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
         if (!$b) {
@@ -124,11 +124,40 @@ page_start('pengadaan', $err);
     </p>
 </form>
 
+<br>
+<table>
+    <tr>
+        <th>id</th>
+        <th>tanggal</th>
+        <th>status_teks</th>
+        <th>vendor</th>
+        <th>user</th>
+        <th>subtotal</th>
+        <th>ppn</th>
+        <th>total</th>
+        <th>aksi</th>
+    </tr>
+    <?php foreach ($rows as $r): ?>
+        <tr>
+            <td><?= e($r['idpengadaan']) ?></td>
+            <td><?= e($r['created_at']) ?></td>
+            <td><?= e($r['status_teks']) ?></td>
+            <td><?= e($r['nama_vendor']) ?></td>
+            <td><?= e($r['username']) ?></td>
+            <td><?= e($r['subtotal_nilai']) ?></td>
+            <td><?= e($r['ppn']) ?></td>
+            <td><?= e($r['total_nilai']) ?></td>
+            <td>
+                <a href="pengadaan.php?id=<?= e($r['idpengadaan']) ?>">detail</a>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+</table>
+
 <?php if ($head): ?>
     <h2>pengadaan <?= e($head['idpengadaan']) ?></h2>
     <table>
         <tr><th>tanggal</th><td><?= e($head['created_at']) ?></td></tr>
-        <tr><th>status</th><td><?= e($head['status']) ?></td></tr>
         <tr><th>status_teks</th><td><?= e($head['status_teks']) ?></td></tr>
         <tr><th>vendor</th><td><?= e($head['nama_vendor']) ?></td></tr>
         <tr><th>user</th><td><?= e($head['username']) ?></td></tr>
@@ -156,35 +185,5 @@ page_start('pengadaan', $err);
         <?php endforeach; ?>
     </table>
 <?php endif; ?>
-<br>
-<table>
-    <tr>
-        <th>id</th>
-        <th>tanggal</th>
-        <th>status</th>
-        <th>status_teks</th>
-        <th>vendor</th>
-        <th>user</th>
-        <th>subtotal</th>
-        <th>ppn</th>
-        <th>total</th>
-        <th>aksi</th>
-    </tr>
-    <?php foreach ($rows as $r): ?>
-        <tr>
-            <td><?= e($r['idpengadaan']) ?></td>
-            <td><?= e($r['created_at']) ?></td>
-            <td><?= e($r['status']) ?></td>
-            <td><?= e($r['status_teks']) ?></td>
-            <td><?= e($r['nama_vendor']) ?></td>
-            <td><?= e($r['username']) ?></td>
-            <td><?= e($r['subtotal_nilai']) ?></td>
-            <td><?= e($r['ppn']) ?></td>
-            <td><?= e($r['total_nilai']) ?></td>
-            <td>
-                <a href="pengadaan.php?id=<?= e($r['idpengadaan']) ?>">detail</a>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-</table>
+
 <?php page_end(); ?>

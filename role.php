@@ -9,13 +9,22 @@ if (is_post()) {
     try {
         if (post_str('act') === 'delete') {
             run_query('delete from role where idrole = ?', 'i', $cur);
-        } elseif ($cur > 0) {
-            run_query('update role set nama_role = ? where idrole = ?', 'si', post_str('nama_role'), $cur);
+            redirect('role.php');
         } else {
-            run_query('insert into role (idrole, nama_role) values (?, ?)', 'is', post_int('idrole'), post_str('nama_role'));
-        }
+            $nama = post_str('nama_role');
 
-        redirect('role.php');
+            if ($nama === '') {
+                $err = 'nama_role wajib diisi.';
+            } else {
+                if ($cur > 0) {
+                    run_query('update role set nama_role = ? where idrole = ?', 'si', $nama, $cur);
+                } else {
+                    run_query('insert into role (nama_role) values (?)', 's', $nama);
+                }
+
+                redirect('role.php');
+            }
+        }
     } catch (mysqli_sql_exception $ex) {
         $err = $ex->getMessage();
     }
@@ -34,11 +43,13 @@ page_start('role', $err);
     <input type="hidden" name="act" value="save">
     <input type="hidden" name="cur" value="<?= e($edit['idrole'] ?? 0) ?>">
 
-    <p>idrole
-        <input name="idrole" value="<?= e($edit['idrole'] ?? '') ?>" <?= $edit ? 'disabled' : '' ?>>
-    </p>
+    <?php if ($edit): ?>
+        <p>idrole
+            <input value="<?= e($edit['idrole']) ?>" disabled>
+        </p>
+    <?php endif; ?>
     <p>nama_role
-        <input name="nama_role" value="<?= e($edit['nama_role'] ?? '') ?>">
+        <input name="nama_role" value="<?= e($edit['nama_role'] ?? '') ?>" required>
     </p>
     <p>
         <button><?= $edit ? 'simpan' : 'tambah' ?></button>

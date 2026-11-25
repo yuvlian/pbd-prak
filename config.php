@@ -74,7 +74,7 @@ function page_start(string $title, string $err = ''): void
 
 function page_end(): void
 {
-    echo '</body></html>';
+    echo '<br><br><br><br></body></html>';
 }
 
 const PPN_PERSEN = 11;

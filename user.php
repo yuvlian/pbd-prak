@@ -9,23 +9,27 @@ if (is_post()) {
     try {
         $username = post_str('username');
         $password = post_str('password');
-        $idrole   = post_int('idrole');
 
         if (post_str('act') === 'delete') {
             run_query('delete from user where iduser = ?', 'i', $cur);
+            redirect('user.php');
+        } elseif ($username === '') {
+            $err = 'username wajib diisi.';
+        } elseif ($cur === 0 && $password === '') {
+            $err = 'password wajib diisi untuk user baru.';
         } else {
             run_query(
                 'call sp_simpan_user(?, ?, ?, ?, ?)',
                 'issii',
-                $cur > 0 ? $cur : post_int('iduser'),
+                $cur,
                 $username,
                 $password,
-                $idrole,
+                post_int('idrole'),
                 $cur > 0 ? 1 : 0
             );
-        }
 
-        redirect('user.php');
+            redirect('user.php');
+        }
     } catch (mysqli_sql_exception $ex) {
         $err = $ex->getMessage();
     }
@@ -45,14 +49,16 @@ page_start('user', $err);
     <input type="hidden" name="act" value="save">
     <input type="hidden" name="cur" value="<?= e($edit['iduser'] ?? 0) ?>">
 
-    <p>iduser
-        <input name="iduser" value="<?= e($edit['iduser'] ?? '') ?>" <?= $edit ? 'disabled' : '' ?>>
-    </p>
+    <?php if ($edit): ?>
+        <p>iduser
+            <input value="<?= e($edit['iduser']) ?>" disabled>
+        </p>
+    <?php endif; ?>
     <p>username
-        <input name="username" value="<?= e($edit['username'] ?? '') ?>">
+        <input name="username" value="<?= e($edit['username'] ?? '') ?>" required>
     </p>
     <p>password
-        <input type="password" name="password" <?= $edit ? 'placeholder="kosong = tidak diubah"' : '' ?>>
+        <input type="password" name="password" <?= $edit ? 'placeholder="kosong = tidak diubah"' : 'required' ?>>
     </p>
     <p>idrole
         <select name="idrole">

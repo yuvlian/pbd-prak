@@ -15,33 +15,37 @@ if (is_post()) {
 
         if (post_str('act') === 'delete') {
             run_query('delete from barang where idbarang = ?', 'i', $cur);
-        } elseif ($cur > 0) {
-            run_query(
-                'update barang set jenis = ?, nama = ?, satuan_idsatuan = ?, status = ?, harga = ?
-                  where idbarang = ?',
-                'ssiiii',
-                $jenis,
-                $nama,
-                $idsatuan,
-                $status,
-                $harga,
-                $cur
-            );
+            redirect('barang.php');
+        } elseif ($nama === '') {
+            $err = 'nama wajib diisi.';
         } else {
-            run_query(
-                'insert into barang (idbarang, jenis, nama, satuan_idsatuan, status, harga)
-                 values (?, ?, ?, ?, ?, ?)',
-                'issiii',
-                post_int('idbarang'),
-                $jenis,
-                $nama,
-                $idsatuan,
-                $status,
-                $harga
-            );
-        }
+            if ($cur > 0) {
+                run_query(
+                    'update barang set jenis = ?, nama = ?, satuan_idsatuan = ?, status = ?, harga = ?
+                      where idbarang = ?',
+                    'ssiiii',
+                    $jenis,
+                    $nama,
+                    $idsatuan,
+                    $status,
+                    $harga,
+                    $cur
+                );
+            } else {
+                run_query(
+                    'insert into barang (jenis, nama, satuan_idsatuan, status, harga)
+                     values (?, ?, ?, ?, ?)',
+                    'ssiii',
+                    $jenis,
+                    $nama,
+                    $idsatuan,
+                    $status,
+                    $harga
+                );
+            }
 
-        redirect('barang.php');
+            redirect('barang.php');
+        }
     } catch (mysqli_sql_exception $ex) {
         $err = $ex->getMessage();
     }
@@ -65,18 +69,20 @@ page_start('barang', $err);
     <input type="hidden" name="act" value="save">
     <input type="hidden" name="cur" value="<?= e($edit['idbarang'] ?? 0) ?>">
 
-    <p>idbarang
-        <input name="idbarang" value="<?= e($edit['idbarang'] ?? '') ?>" <?= $edit ? 'disabled' : '' ?>>
-    </p>
+    <?php if ($edit): ?>
+        <p>idbarang
+            <input value="<?= e($edit['idbarang']) ?>" disabled>
+        </p>
+    <?php endif; ?>
     <p>jenis
         <select name="jenis">
-            <option value="O" <?= ($edit['jenis'] ?? 'O') === 'O' ? 'selected' : '' ?>>Obat</option>
-            <option value="S" <?= ($edit['jenis'] ?? '') === 'S' ? 'selected' : '' ?>>Suplemen</option>
-            <option value="A" <?= ($edit['jenis'] ?? '') === 'A' ? 'selected' : '' ?>>Alat Kesehatan</option>
+            <option value="O" <?= ($edit['jenis_teks'] ?? 'Obat') === 'Obat' ? 'selected' : '' ?>>Obat</option>
+            <option value="S" <?= ($edit['jenis_teks'] ?? '') === 'Suplemen' ? 'selected' : '' ?>>Suplemen</option>
+            <option value="A" <?= ($edit['jenis_teks'] ?? '') === 'Alat Kesehatan' ? 'selected' : '' ?>>Alat Kesehatan</option>
         </select>
     </p>
     <p>nama
-        <input name="nama" value="<?= e($edit['nama'] ?? '') ?>">
+        <input name="nama" value="<?= e($edit['nama'] ?? '') ?>" required>
     </p>
     <p>idsatuan
         <select name="idsatuan">
@@ -88,7 +94,10 @@ page_start('barang', $err);
         </select>
     </p>
     <p>status
-        <input type="number" name="status" value="<?= e($edit['status'] ?? 1) ?>">
+        <select name="status">
+            <option value="1" <?= ($edit['status_teks'] ?? 'Aktif') === 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+            <option value="0" <?= ($edit['status_teks'] ?? '') === 'Nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
+        </select>
     </p>
     <p>harga
         <input type="number" name="harga" value="<?= e($edit['harga'] ?? 0) ?>">
@@ -104,12 +113,10 @@ page_start('barang', $err);
 <table>
     <tr>
         <th>idbarang</th>
-        <th>jenis</th>
         <th>jenis_teks</th>
         <th>nama</th>
         <th>idsatuan</th>
         <th>nama_satuan</th>
-        <th>status</th>
         <th>status_teks</th>
         <th>harga</th>
         <th>stok</th>
@@ -118,12 +125,10 @@ page_start('barang', $err);
     <?php foreach ($rows as $r): ?>
         <tr>
             <td><?= e($r['idbarang']) ?></td>
-            <td><?= e($r['jenis']) ?></td>
             <td><?= e($r['jenis_teks']) ?></td>
             <td><?= e($r['nama']) ?></td>
             <td><?= e($r['idsatuan']) ?></td>
             <td><?= e($r['nama_satuan']) ?></td>
-            <td><?= e($r['status']) ?></td>
             <td><?= e($r['status_teks']) ?></td>
             <td><?= e($r['harga']) ?></td>
             <td><?= e($r['stok']) ?></td>

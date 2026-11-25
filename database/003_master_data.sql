@@ -25,12 +25,12 @@ insert into vendor (idvendor, nama_vendor, badan_hukum, status) values
     (403, 'CV Anugrah Pharmindo Lestari', 'C', 'A');
 
 insert into margin_penjualan
-    (idmargin_penjualan, created_at, persen, status, iduser) values
-    (501, '2026-11-11 08:00:00', 10, 0, 202),
-    (502, '2026-11-11 09:00:00', 15, 0, 202),
-    (503, '2026-11-11 10:00:00', 20, 1, 202),
-    (504, '2026-11-11 11:00:00', 25.5, 0, 201),
-    (505, '2026-11-11 12:00:00', 30, 0, 201);
+    (idmargin_penjualan, created_at, persen, status, iduser, updated_at) values
+    (501, '2026-11-11 08:00:00', 10, 0, 202, '2026-11-11 09:00:00'),
+    (502, '2026-11-11 09:00:00', 15, 0, 202, '2026-11-11 10:00:00'),
+    (503, '2026-11-11 10:00:00', 20, 1, 202, NULL),
+    (504, '2026-11-11 11:00:00', 25.5, 0, 201, '2026-11-11 12:00:00'),
+    (505, '2026-11-11 12:00:00', 30, 0, 201, '2026-11-11 13:00:00');
 
 insert into barang
     (idbarang, jenis, nama, idsatuan, status, harga) values

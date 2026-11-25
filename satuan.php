@@ -9,25 +9,33 @@ if (is_post()) {
     try {
         if (post_str('act') === 'delete') {
             run_query('delete from satuan where idsatuan = ?', 'i', $cur);
-        } elseif ($cur > 0) {
-            run_query(
-                'update satuan set nama_satuan = ?, status = ? where idsatuan = ?',
-                'sii',
-                post_str('nama_satuan'),
-                post_int('status'),
-                $cur
-            );
+            redirect('satuan.php');
         } else {
-            run_query(
-                'insert into satuan (idsatuan, nama_satuan, status) values (?, ?, ?)',
-                'isi',
-                post_int('idsatuan'),
-                post_str('nama_satuan'),
-                post_int('status')
-            );
-        }
+            $nama = post_str('nama_satuan');
 
-        redirect('satuan.php');
+            if ($nama === '') {
+                $err = 'nama_satuan wajib diisi.';
+            } else {
+                if ($cur > 0) {
+                    run_query(
+                        'update satuan set nama_satuan = ?, status = ? where idsatuan = ?',
+                        'sii',
+                        $nama,
+                        post_int('status'),
+                        $cur
+                    );
+                } else {
+                    run_query(
+                        'insert into satuan (nama_satuan, status) values (?, ?)',
+                        'si',
+                        $nama,
+                        post_int('status')
+                    );
+                }
+
+                redirect('satuan.php');
+            }
+        }
     } catch (mysqli_sql_exception $ex) {
         $err = $ex->getMessage();
     }
@@ -46,14 +54,19 @@ page_start('satuan', $err);
     <input type="hidden" name="act" value="save">
     <input type="hidden" name="cur" value="<?= e($edit['idsatuan'] ?? 0) ?>">
 
-    <p>idsatuan
-        <input name="idsatuan" value="<?= e($edit['idsatuan'] ?? '') ?>" <?= $edit ? 'disabled' : '' ?>>
-    </p>
+    <?php if ($edit): ?>
+        <p>idsatuan
+            <input value="<?= e($edit['idsatuan']) ?>" disabled>
+        </p>
+    <?php endif; ?>
     <p>nama_satuan
-        <input name="nama_satuan" value="<?= e($edit['nama_satuan'] ?? '') ?>">
+        <input name="nama_satuan" value="<?= e($edit['nama_satuan'] ?? '') ?>" required>
     </p>
     <p>status
-        <input type="number" name="status" value="<?= e($edit['status'] ?? 1) ?>">
+        <select name="status">
+            <option value="1" <?= ($edit['status_teks'] ?? 'Aktif') === 'Aktif' ? 'selected' : '' ?>>Aktif</option>
+            <option value="0" <?= ($edit['status_teks'] ?? '') === 'Nonaktif' ? 'selected' : '' ?>>Nonaktif</option>
+        </select>
     </p>
     <p>
         <button><?= $edit ? 'simpan' : 'tambah' ?></button>
@@ -67,7 +80,6 @@ page_start('satuan', $err);
     <tr>
         <th>idsatuan</th>
         <th>nama_satuan</th>
-        <th>status</th>
         <th>status_teks</th>
         <th>aksi</th>
     </tr>
@@ -75,7 +87,6 @@ page_start('satuan', $err);
         <tr>
             <td><?= e($r['idsatuan']) ?></td>
             <td><?= e($r['nama_satuan']) ?></td>
-            <td><?= e($r['status']) ?></td>
             <td><?= e($r['status_teks']) ?></td>
             <td>
                 <a href="satuan.php?edit=<?= e($r['idsatuan']) ?>">edit</a>
