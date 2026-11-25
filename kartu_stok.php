@@ -2,11 +2,7 @@
 
 require 'config.php';
 
-$rows = rows(
-    'select idkartu_stok, created_at, nama, jenis_teks, masuk, keluar, stock, idtransaksi
-       from v_kartu_stok
-      order by idkartu_stok desc'
-);
+$rows = rows('select * from v_kartu_stok order by idkartu_stok desc');
 
 page_start('kartu_stok');
 ?>

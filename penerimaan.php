@@ -4,7 +4,7 @@ require 'config.php';
 
 $err = '';
 
-$users = rows('select iduser, username from v_user order by iduser');
+$users = rows('select * from v_user order by iduser');
 
 if (is_post()) {
     try {
@@ -12,16 +12,13 @@ if (is_post()) {
         $iduser      = post_int('iduser');
 
         $ada = row(
-            'select count(*) as n
-               from v_sisa_pengadaan
-              where idpengadaan = ?
-                and sisa > 0',
+            'select * from v_sisa_pengadaan where idpengadaan = ? and sisa > 0 limit 1',
             'i',
             $idpengadaan
         );
-        $u = row('select iduser from v_user where iduser = ?', 'i', $iduser);
+        $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
-        if ((int) $ada['n'] === 0) {
+        if (!$ada) {
             $err = 'Pengadaan sudah diterima seluruhnya.';
         } elseif (!$u) {
             $err = 'User tidak ditemukan.';
@@ -38,38 +35,26 @@ if (is_post()) {
     }
 }
 
-$open = rows(
-    'select idpengadaan, created_at, nama_vendor, nama, jumlah, sisa
-       from v_sisa_pengadaan
-      where sisa > 0
-      order by idpengadaan'
-);
+$open = rows('select * from v_sisa_pengadaan where sisa > 0 order by idpengadaan');
 
 $head  = null;
 $items = [];
 if (isset($_GET['id'])) {
     $head = row(
-        'select idpenerimaan, created_at, status, status_teks, nama_vendor, username, total_nilai
-           from v_penerimaan
-          where idpenerimaan = ?',
+        'select * from v_penerimaan where idpenerimaan = ?',
         'i',
         (int) $_GET['id']
     );
 
     if ($head) {
         $items = rows(
-            'select barang_idbarang, nama, jumlah_terima, harga_satuan_terima, sub_total_terima
-               from v_detail_penerimaan
+            'select * from v_detail_penerimaan
               where penerimaan_idpenerimaan = ' . (int) $head['idpenerimaan']
         );
     }
 }
 
-$rows = rows(
-    'select idpenerimaan, created_at, status, status_teks, nama_vendor, username, total_nilai
-       from v_penerimaan
-      order by idpenerimaan desc'
-);
+$rows = rows('select * from v_penerimaan order by idpenerimaan desc');
 
 page_start('penerimaan', $err);
 ?>

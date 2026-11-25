@@ -4,9 +4,9 @@ require 'config.php';
 
 $err = '';
 
-$vendors = rows("select idvendor, nama_vendor from v_vendor where status = 'A' order by nama_vendor");
-$stok    = rows('select idbarang, nama, harga from v_stok_barang where status = 1 order by nama');
-$users   = rows('select iduser, username from v_user order by iduser');
+$vendors = rows("select * from v_vendor where status = 'A' order by nama_vendor");
+$stok    = rows('select * from v_stok_barang where status = 1 order by nama');
+$users   = rows('select * from v_user order by iduser');
 
 if (is_post()) {
     try {
@@ -15,9 +15,9 @@ if (is_post()) {
         $iduser   = post_int('iduser');
         $jumlah   = post_int('jumlah');
 
-        $b = row('select idbarang, harga from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
-        $v = row("select idvendor from v_vendor where idvendor = ? and status = 'A'", 'i', $idvendor);
-        $u = row('select iduser from v_user where iduser = ?', 'i', $iduser);
+        $b = row('select * from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
+        $v = row("select * from v_vendor where idvendor = ? and status = 'A'", 'i', $idvendor);
+        $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
         if (!$b) {
             $err = 'Barang tidak ditemukan atau sudah tidak aktif.';
@@ -71,29 +71,20 @@ $head  = null;
 $items = [];
 if (isset($_GET['id'])) {
     $head = row(
-        'select idpengadaan, created_at, status, status_teks, nama_vendor, username,
-                subtotal_nilai, ppn, total_nilai
-           from v_pengadaan
-          where idpengadaan = ?',
+        'select * from v_pengadaan where idpengadaan = ?',
         'i',
         (int) $_GET['id']
     );
 
     if ($head) {
         $items = rows(
-            'select barang_idbarang, nama, harga_satuan, jumlah, sub_total
-               from v_detail_pengadaan
+            'select * from v_detail_pengadaan
               where pengadaan_idpengadaan = ' . (int) $head['idpengadaan']
         );
     }
 }
 
-$rows = rows(
-    'select idpengadaan, created_at, status, status_teks, nama_vendor, username,
-            subtotal_nilai, ppn, total_nilai
-       from v_pengadaan
-      order by idpengadaan desc'
-);
+$rows = rows('select * from v_pengadaan order by idpengadaan desc');
 
 page_start('pengadaan', $err);
 ?>

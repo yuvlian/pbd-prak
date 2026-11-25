@@ -49,20 +49,14 @@ if (is_post()) {
 $edit = null;
 if (isset($_GET['edit'])) {
     $edit = row(
-        'select idmargin_penjualan, created_at, persen, status, iduser
-           from v_margin_penjualan
-          where idmargin_penjualan = ?',
+        'select * from v_margin_penjualan where idmargin_penjualan = ?',
         'i',
         (int) $_GET['edit']
     );
 }
 
-$users = rows('select iduser, username from v_user order by iduser');
-$rows  = rows(
-    'select idmargin_penjualan, created_at, persen, status, status_teks, iduser, username, updated_at
-       from v_margin_penjualan
-      order by idmargin_penjualan'
-);
+$users = rows('select * from v_user order by iduser');
+$rows  = rows('select * from v_margin_penjualan order by idmargin_penjualan');
 
 $created = $edit
     ? str_replace(' ', 'T', substr($edit['created_at'], 0, 16))

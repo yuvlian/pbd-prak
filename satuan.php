@@ -35,10 +35,10 @@ if (is_post()) {
 
 $edit = null;
 if (isset($_GET['edit'])) {
-    $edit = row('select idsatuan, nama_satuan, status from v_satuan where idsatuan = ?', 'i', (int) $_GET['edit']);
+    $edit = row('select * from v_satuan where idsatuan = ?', 'i', (int) $_GET['edit']);
 }
 
-$rows = rows('select idsatuan, nama_satuan, status, status_teks from v_satuan order by idsatuan');
+$rows = rows('select * from v_satuan order by idsatuan');
 
 page_start('satuan', $err);
 ?>

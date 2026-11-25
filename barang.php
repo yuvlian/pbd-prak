@@ -50,18 +50,14 @@ if (is_post()) {
 $edit = null;
 if (isset($_GET['edit'])) {
     $edit = row(
-        'select idbarang, jenis, nama, satuan_idsatuan, status, harga from v_barang where idbarang = ?',
+        'select * from v_barang where idbarang = ?',
         'i',
         (int) $_GET['edit']
     );
 }
 
-$satuan = rows('select idsatuan, nama_satuan from v_satuan order by idsatuan');
-$rows   = rows(
-    'select idbarang, jenis, jenis_teks, nama, idsatuan, nama_satuan, status, status_teks, harga, stok
-       from v_stok_barang
-      order by idbarang'
-);
+$satuan = rows('select * from v_satuan order by idsatuan');
+$rows   = rows('select * from v_stok_barang order by idbarang');
 
 page_start('barang', $err);
 ?>

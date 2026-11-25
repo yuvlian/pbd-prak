@@ -23,10 +23,10 @@ if (is_post()) {
 
 $edit = null;
 if (isset($_GET['edit'])) {
-    $edit = row('select idrole, nama_role from v_role where idrole = ?', 'i', (int) $_GET['edit']);
+    $edit = row('select * from v_role where idrole = ?', 'i', (int) $_GET['edit']);
 }
 
-$rows = rows('select idrole, nama_role from v_role order by idrole');
+$rows = rows('select * from v_role order by idrole');
 
 page_start('role', $err);
 ?>

@@ -38,17 +38,13 @@ if (is_post()) {
 $edit = null;
 if (isset($_GET['edit'])) {
     $edit = row(
-        'select idvendor, nama_vendor, badan_hukum, status from v_vendor where idvendor = ?',
+        'select * from v_vendor where idvendor = ?',
         'i',
         (int) $_GET['edit']
     );
 }
 
-$rows = rows(
-    'select idvendor, nama_vendor, badan_hukum, badan_hukum_teks, status, status_teks
-     from v_vendor
-     order by idvendor'
-);
+$rows = rows('select * from v_vendor order by idvendor');
 
 page_start('vendor', $err);
 ?>

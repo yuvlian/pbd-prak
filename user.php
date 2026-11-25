@@ -33,11 +33,11 @@ if (is_post()) {
 
 $edit = null;
 if (isset($_GET['edit'])) {
-    $edit = row('select iduser, username, idrole from v_user where iduser = ?', 'i', (int) $_GET['edit']);
+    $edit = row('select * from v_user where iduser = ?', 'i', (int) $_GET['edit']);
 }
 
-$roles = rows('select idrole, nama_role from v_role order by idrole');
-$rows  = rows('select iduser, username, idrole, nama_role from v_user order by iduser');
+$roles = rows('select * from v_role order by idrole');
+$rows  = rows('select * from v_user order by iduser');
 
 page_start('user', $err);
 ?>

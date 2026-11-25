@@ -10,12 +10,9 @@ if (!$margin) {
     $err = 'Belum ada margin penjualan aktif.';
 }
 
-$users = rows('select iduser, username from v_user order by iduser');
+$users = rows('select * from v_user order by iduser');
 $daftar = $margin
-    ? rows('select idbarang, nama, nama_satuan, harga, stok
-              from v_stok_barang
-             where status = 1
-             order by nama')
+    ? rows('select * from v_stok_barang where status = 1 order by nama')
     : [];
 
 if (is_post()) {
@@ -25,11 +22,11 @@ if (is_post()) {
         $iduser   = post_int('iduser');
         $jumlah   = post_int('jumlah');
 
-        $b = row('select idbarang, harga from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
+        $b = row('select * from v_barang where idbarang = ? and status = 1', 'i', $idbarang);
         $stok = $b
-            ? (int) row('select stok from v_stok_barang where idbarang = ?', 'i', $idbarang)['stok']
+            ? (int) row('select * from v_stok_barang where idbarang = ?', 'i', $idbarang)['stok']
             : 0;
-        $u = row('select iduser from v_user where iduser = ?', 'i', $iduser);
+        $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
         if (!$margin) {
             $err = 'Belum ada margin penjualan aktif.';
@@ -97,29 +94,20 @@ $head  = null;
 $items = [];
 if (isset($_GET['id'])) {
     $head = row(
-        'select idpenjualan, created_at, status, status_teks, username, margin_persen,
-                subtotal_nilai, ppn, total_nilai
-           from v_penjualan
-          where idpenjualan = ?',
+        'select * from v_penjualan where idpenjualan = ?',
         'i',
         (int) $_GET['id']
     );
 
     if ($head) {
         $items = rows(
-            'select barang_idbarang, nama, harga_satuan, jumlah, subtotal
-               from v_detail_penjualan
+            'select * from v_detail_penjualan
               where penjualan_idpenjualan = ' . (int) $head['idpenjualan']
         );
     }
 }
 
-$rows = rows(
-    'select idpenjualan, created_at, status, status_teks, username, margin_persen,
-            subtotal_nilai, ppn, total_nilai
-       from v_penjualan
-      order by idpenjualan desc'
-);
+$rows = rows('select * from v_penjualan order by idpenjualan desc');
 
 page_start('penjualan', $err);
 ?>
