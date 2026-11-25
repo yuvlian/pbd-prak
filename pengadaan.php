@@ -2,7 +2,18 @@
 
 require 'config.php';
 
-$err = '';
+$err  = '';
+$act  = is_post() ? post_str('act') : '';
+$qty  = isset($_POST['qty']) && is_array($_POST['qty']) ? $_POST['qty'] : [];
+$mode = 'form';
+
+$idvendor = post_int('vendor_idvendor');
+$iduser   = post_int('iduser');
+
+$pesanan     = [];
+$subtotal    = 0;
+$vendor_teks = '';
+$user_teks   = '';
 
 $vendors = rows("select * from v_vendor where status_teks = 'Aktif' order by nama_vendor");
 $stok    = rows("select * from v_stok_barang where status_teks = 'Aktif' order by nama");
@@ -10,53 +21,70 @@ $users   = rows('select * from v_user order by iduser');
 
 if (is_post()) {
     try {
-        $idbarang = post_int('idbarang');
-        $idvendor = post_int('vendor_idvendor');
-        $iduser   = post_int('iduser');
-        $jumlah   = post_int('jumlah');
-
-        $b = row("select * from v_barang where idbarang = ? and status_teks = 'Aktif'", 'i', $idbarang);
         $v = row("select * from v_vendor where idvendor = ? and status_teks = 'Aktif'", 'i', $idvendor);
         $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
-        if (!$b) {
-            $err = 'Barang tidak ditemukan atau sudah tidak aktif.';
+        foreach ($stok as $s) {
+            $idbarang = (int) $s['idbarang'];
+            $jumlah   = (int) ($qty[$idbarang] ?? 0);
+
+            if ($jumlah < 0) {
+                $err = 'Jumlah tidak boleh negatif.';
+                break;
+            }
+
+            if ($jumlah > 0) {
+                $harga = (int) $s['harga'];
+                $pesanan[] = [
+                    'idbarang' => $idbarang,
+                    'nama'     => $s['nama'],
+                    'stok'     => (int) $s['stok'],
+                    'harga'    => $harga,
+                    'jumlah'   => $jumlah,
+                    'subtotal' => $harga * $jumlah,
+                ];
+                $subtotal += $harga * $jumlah;
+            }
+        }
+
+        if ($err !== '') {
+            // negative num
         } elseif (!$v) {
             $err = 'Vendor tidak valid atau sudah tidak aktif.';
         } elseif (!$u) {
             $err = 'User tidak ditemukan.';
-        } elseif ($jumlah < 1) {
-            $err = 'Jumlah harus lebih dari nol.';
+        } elseif (!$pesanan) {
+            $err = 'Pilih minimal satu barang.';
+        } elseif ($act === 'preview') {
+            $mode        = 'confirm';
+            $vendor_teks = $v['nama_vendor'];
+            $user_teks   = $u['username'];
         } else {
-            $harga    = (int) $b['harga'];
-            $subtotal = $harga * $jumlah;
-            $ppn      = 0;
-            $total    = $subtotal;
-
             begin();
             run_query(
                 'insert into pengadaan (created_at, user_iduser, status, vendor_idvendor, subtotal_nilai, ppn, total_nilai)
-                 values (now(), ?, ?, ?, ?, ?, ?)',
-                'isiiii',
+                 values (now(), ?, ?, ?, ?, 0, ?)',
+                'isiii',
                 $iduser,
                 'P',
                 $idvendor,
                 $subtotal,
-                $ppn,
-                $total
+                $subtotal
             );
             $idpengadaan = insert_id();
 
-            run_query(
-                'insert into detail_pengadaan (harga_satuan, jumlah, sub_total, barang_idbarang, pengadaan_idpengadaan)
-                 values (?, ?, ?, ?, ?)',
-                'iiiii',
-                $harga,
-                $jumlah,
-                $subtotal,
-                $idbarang,
-                $idpengadaan
-            );
+            foreach ($pesanan as $it) {
+                run_query(
+                    'insert into detail_pengadaan (harga_satuan, jumlah, sub_total, barang_idbarang, pengadaan_idpengadaan)
+                     values (?, ?, ?, ?, ?)',
+                    'iiiii',
+                    $it['harga'],
+                    $it['jumlah'],
+                    $it['subtotal'],
+                    $it['idbarang'],
+                    $idpengadaan
+                );
+            }
             commit();
 
             redirect('pengadaan.php');
@@ -86,43 +114,86 @@ if (isset($_GET['id'])) {
 
 $rows = rows('select * from v_pengadaan order by idpengadaan desc');
 
-page_start('pengadaan', $err);
+page_start($mode === 'confirm' ? 'konfirmasi pengadaan' : 'pengadaan', $err);
 ?>
+<?php if ($mode === 'confirm'): ?>
+    <p>vendor: <?= e($vendor_teks) ?><br>user: <?= e($user_teks) ?></p>
+    <p>kamu akan pesan:</p>
+    <table>
+        <tr>
+            <th>barang</th>
+            <th>stok</th>
+            <th>harga</th>
+            <th>jumlah</th>
+            <th>sub_total</th>
+        </tr>
+        <?php foreach ($pesanan as $p): ?>
+            <tr>
+                <td><?= e($p['nama']) ?></td>
+                <td><?= e($p['stok']) ?></td>
+                <td><?= e($p['harga']) ?></td>
+                <td><?= e($p['jumlah']) ?></td>
+                <td><?= e($p['subtotal']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+    <p>total: <?= e($subtotal) ?></p>
+    <form method="post">
+        <input type="hidden" name="act" value="commit">
+        <input type="hidden" name="vendor_idvendor" value="<?= e($idvendor) ?>">
+        <input type="hidden" name="iduser" value="<?= e($iduser) ?>">
+        <?php foreach ($pesanan as $p): ?>
+            <input type="hidden" name="qty[<?= e($p['idbarang']) ?>]" value="<?= e($p['jumlah']) ?>">
+        <?php endforeach; ?>
+        <p><button>konfirmasi</button> <a href="pengadaan.php">batal</a></p>
+    </form>
+<?php else: ?>
 <form method="post">
+    <input type="hidden" name="act" value="preview">
     <p>vendor
         <select name="vendor_idvendor">
             <?php foreach ($vendors as $v): ?>
-                <option value="<?= e($v['idvendor']) ?>">
+                <option value="<?= e($v['idvendor']) ?>" <?= (int) $v['idvendor'] === $idvendor ? 'selected' : '' ?>>
                     <?= e($v['idvendor'] . ' - ' . $v['nama_vendor']) ?>
                 </option>
             <?php endforeach; ?>
         </select>
     </p>
-    <p>barang
-        <select name="idbarang">
-            <?php foreach ($stok as $b): ?>
-                <option value="<?= e($b['idbarang']) ?>">
-                    <?= e($b['idbarang'] . ' - ' . $b['nama'] . ' (' . $b['harga'] . ')') ?>
-                </option>
-            <?php endforeach; ?>
-        </select>
-    </p>
-    <p>jumlah
-        <input type="number" name="jumlah" value="1">
-    </p>
     <p>user
         <select name="iduser">
             <?php foreach ($users as $u): ?>
-                <option value="<?= e($u['iduser']) ?>">
+                <option value="<?= e($u['iduser']) ?>" <?= (int) $u['iduser'] === $iduser ? 'selected' : '' ?>>
                     <?= e($u['iduser'] . ' - ' . $u['username']) ?>
                 </option>
             <?php endforeach; ?>
         </select>
     </p>
+    <table>
+        <tr>
+            <th>idbarang</th>
+            <th>nama</th>
+            <th>harga</th>
+            <th>stok</th>
+            <th>jumlah</th>
+        </tr>
+        <?php foreach ($stok as $b): ?>
+            <tr>
+                <td><?= e($b['idbarang']) ?></td>
+                <td><?= e($b['nama']) ?></td>
+                <td><?= e($b['harga']) ?></td>
+                <td><?= e($b['stok']) ?></td>
+                <td>
+                    <input type="number" min="0" name="qty[<?= e($b['idbarang']) ?>]"
+                           value="<?= e($qty[$b['idbarang']] ?? 0) ?>">
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
     <p>
-        <button>tambah</button>
+        <button>lanjut</button>
     </p>
 </form>
+<?php endif; ?>
 
 <br>
 <table>
