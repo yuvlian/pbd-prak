@@ -9,11 +9,21 @@ $mode = 'form';
 
 $iduser = post_int('iduser');
 
-$users = rows('select * from v_user order by iduser');
-$daftar = rows("select * from v_stok_barang where status_teks = 'Aktif' order by nama");
+$users  = rows('select * from v_user order by iduser');
+$daftar = rows(
+    "select *
+     from v_stok_barang
+     where status_teks = 'Aktif'
+     order by nama"
+);
 
 $margin_user = [];
-foreach (rows('select user_iduser, idmargin_penjualan, persen from margin_penjualan where status = 1') as $m) {
+$margin_rows = rows(
+    'select user_iduser, idmargin_penjualan, persen
+     from margin_penjualan
+     where status = 1'
+);
+foreach ($margin_rows as $m) {
     $margin_user[(int) $m['user_iduser']] = $m;
 }
 
@@ -28,8 +38,9 @@ if (is_post()) {
     try {
         $u = row('select * from v_user where iduser = ?', 'i', $iduser);
         $margin = row(
-            'select idmargin_penjualan, persen from margin_penjualan
-              where status = 1 and user_iduser = ? limit 1',
+            'select idmargin_penjualan, persen
+             from margin_penjualan
+             where status = 1 and user_iduser = ? limit 1',
             'i',
             $iduser
         );
@@ -85,8 +96,18 @@ if (is_post()) {
 
             begin();
             run_query(
-                'insert into penjualan (created_at, subtotal_nilai, ppn, total_nilai, user_iduser, margin_penjualan_idmargin_penjualan, status)
-                 values (now(), ?, ?, ?, ?, ?, \'S\')',
+                'insert into penjualan
+                    (
+                        created_at,
+                        subtotal_nilai,
+                        ppn,
+                        total_nilai,
+                        user_iduser,
+                        margin_penjualan_idmargin_penjualan,
+                        status
+                    )
+                 values
+                    (now(), ?, ?, ?, ?, ?, \'S\')',
                 'iiiii',
                 $subtotal,
                 $ppn,
@@ -98,8 +119,9 @@ if (is_post()) {
 
             foreach ($baris_jual as $p) {
                 run_query(
-                    'insert into detail_penjualan (harga_satuan, jumlah, subtotal, penjualan_idpenjualan, barang_idbarang)
-                     values (?, ?, ?, ?, ?)',
+                    'insert into detail_penjualan
+                        (harga_satuan, jumlah, subtotal, penjualan_idpenjualan, barang_idbarang) values
+                        (?, ?, ?, ?, ?)',
                     'iiiii',
                     $p['harga_jual'],
                     $p['jumlah'],
@@ -109,8 +131,9 @@ if (is_post()) {
                 );
 
                 run_query(
-                    'insert into kartu_stok (jenis_transaksi, masuk, keluar, stock, created_at, idtransaksi, barang_idbarang)
-                     values (?, 0, ?, fn_stok_barang(?) - ?, now(), ?, ?)',
+                    'insert into kartu_stok
+                        (jenis_transaksi, masuk, keluar, stock, created_at, idtransaksi, barang_idbarang) values
+                        (?, 0, ?, fn_stok_barang(?) - ?, now(), ?, ?)',
                     'siiiii',
                     'J',
                     $p['jumlah'],
@@ -141,8 +164,9 @@ if (isset($_GET['id'])) {
 
     if ($head) {
         $items = rows(
-            'select * from v_detail_penjualan
-              where penjualan_idpenjualan = ' . (int) $head['idpenjualan']
+            'select *
+             from v_detail_penjualan
+             where penjualan_idpenjualan = ' . (int) $head['idpenjualan']
         );
     }
 }
@@ -189,7 +213,8 @@ page_start($mode === 'confirm' ? 'konfirmasi penjualan' : 'penjualan', $err);
                 <?php foreach ($users as $u): ?>
                     <?php $mu = $margin_user[(int) $u['iduser']] ?? null; ?>
                     <option value="<?= e($u['iduser']) ?>" <?= (int) $u['iduser'] === $iduser ? 'selected' : '' ?>>
-                        <?= e($u['iduser'] . ' - ' . $u['username']) ?><?= $mu ? ' (margin ' . e($mu['persen']) . '%)' : ' (tanpa margin)' ?>
+                        <?= e($u['iduser'] . ' - ' . $u['username'])
+                            . ($mu ? ' (margin ' . e($mu['persen']) . '%)' : ' (tanpa margin)') ?>
                     </option>
                 <?php endforeach; ?>
             </select>

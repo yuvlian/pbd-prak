@@ -18,7 +18,9 @@ if (is_post()) {
             } else {
                 if ($cur > 0) {
                     run_query(
-                        'update vendor set nama_vendor = ?, badan_hukum = ?, status = ? where idvendor = ?',
+                        'update vendor
+                            set nama_vendor = ?, badan_hukum = ?, status = ?
+                            where idvendor = ?',
                         'sssi',
                         $nama,
                         post_str('badan_hukum'),
@@ -27,7 +29,8 @@ if (is_post()) {
                     );
                 } else {
                     run_query(
-                        'insert into vendor (nama_vendor, badan_hukum, status) values (?, ?, ?)',
+                        'insert into vendor (nama_vendor, badan_hukum, status) values
+                            (?, ?, ?)',
                         'sss',
                         $nama,
                         post_str('badan_hukum'),

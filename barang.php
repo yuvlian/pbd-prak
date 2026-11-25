@@ -21,8 +21,9 @@ if (is_post()) {
         } else {
             if ($cur > 0) {
                 run_query(
-                    'update barang set jenis = ?, nama = ?, satuan_idsatuan = ?, status = ?, harga = ?
-                      where idbarang = ?',
+                    'update barang
+                        set jenis = ?, nama = ?, satuan_idsatuan = ?, status = ?, harga = ?
+                        where idbarang = ?',
                     'ssiiii',
                     $jenis,
                     $nama,
@@ -33,8 +34,8 @@ if (is_post()) {
                 );
             } else {
                 run_query(
-                    'insert into barang (jenis, nama, satuan_idsatuan, status, harga)
-                     values (?, ?, ?, ?, ?)',
+                    'insert into barang (jenis, nama, satuan_idsatuan, status, harga) values
+                        (?, ?, ?, ?, ?)',
                     'ssiii',
                     $jenis,
                     $nama,
@@ -78,7 +79,9 @@ page_start('barang', $err);
         <select name="jenis">
             <option value="O" <?= ($edit['jenis_teks'] ?? 'Obat') === 'Obat' ? 'selected' : '' ?>>Obat</option>
             <option value="S" <?= ($edit['jenis_teks'] ?? '') === 'Suplemen' ? 'selected' : '' ?>>Suplemen</option>
-            <option value="A" <?= ($edit['jenis_teks'] ?? '') === 'Alat Kesehatan' ? 'selected' : '' ?>>Alat Kesehatan</option>
+            <option value="A" <?= ($edit['jenis_teks'] ?? '') === 'Alat Kesehatan' ? 'selected' : '' ?>>
+                Alat Kesehatan
+            </option>
         </select>
     </p>
     <p>nama
@@ -87,7 +90,8 @@ page_start('barang', $err);
     <p>idsatuan
         <select name="idsatuan">
             <?php foreach ($satuan as $s): ?>
-                <option value="<?= e($s['idsatuan']) ?>" <?= ($edit['idsatuan'] ?? 0) == $s['idsatuan'] ? 'selected' : '' ?>>
+                <option value="<?= e($s['idsatuan']) ?>"
+                        <?= ($edit['idsatuan'] ?? 0) == $s['idsatuan'] ? 'selected' : '' ?>>
                     <?= e($s['idsatuan'] . ' - ' . $s['nama_satuan']) ?>
                 </option>
             <?php endforeach; ?>

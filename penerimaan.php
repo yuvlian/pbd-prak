@@ -8,9 +8,12 @@ $users = rows('select * from v_user order by iduser');
 
 function baris_terbuka(): array
 {
-    return rows('select * from v_sisa_pengadaan
-                  where sisa > 0
-                  order by idpengadaan, nama');
+    return rows(
+        'select *
+         from v_sisa_pengadaan
+         where sisa > 0
+         order by idpengadaan, nama'
+    );
 }
 
 function validasi_terima(array $qty): array
@@ -30,7 +33,12 @@ function validasi_terima(array $qty): array
             : 0;
 
         if ($jumlah < 0 || $jumlah > (int) $s['sisa']) {
-            return [[], $s['nama'] . ' (pengadaan ' . $idpengadaan . '): jumlah harus antara 0 dan ' . $s['sisa'] . '.'];
+            return [
+                [],
+                $s['nama']
+                    . ' (pengadaan ' . $idpengadaan . '): jumlah harus antara 0 dan '
+                    . $s['sisa'] . '.',
+            ];
         }
 
         if ($jumlah > 0) {
@@ -82,8 +90,9 @@ if ($act === 'preview' || $act === 'commit') {
 
             foreach ($grup as $pid => $daftar) {
                 run_query(
-                    'insert into penerimaan (created_at, status, pengadaan_idpengadaan, user_iduser)
-                     values (now(), ?, ?, ?)',
+                    'insert into penerimaan
+                        (created_at, status, pengadaan_idpengadaan, user_iduser) values
+                        (now(), ?, ?, ?)',
                     'sii',
                     'S',
                     $pid,
@@ -103,7 +112,9 @@ if ($act === 'preview' || $act === 'commit') {
                 }
 
                 $masuk += (int) row(
-                    'select count(*) as n from detail_penerimaan where penerimaan_idpenerimaan = ?',
+                    'select count(*) as n
+                     from detail_penerimaan
+                     where penerimaan_idpenerimaan = ?',
                     'i',
                     $idpenerimaan
                 )['n'];
@@ -140,8 +151,9 @@ if ($mode === 'list' && isset($_GET['id'])) {
 
     if ($head) {
         $detail_items = rows(
-            'select * from v_detail_penerimaan
-              where penerimaan_idpenerimaan = ' . (int) $head['idpenerimaan']
+            'select *
+             from v_detail_penerimaan
+             where penerimaan_idpenerimaan = ' . (int) $head['idpenerimaan']
         );
     }
 }
@@ -172,7 +184,9 @@ page_start($mode === 'confirm' ? 'konfirmasi penerimaan' : 'penerimaan', $err);
         <input type="hidden" name="act" value="commit">
         <input type="hidden" name="iduser" value="<?= e($iduser) ?>">
         <?php foreach ($items as $it): ?>
-            <input type="hidden" name="qty[<?= e($it['idpengadaan']) ?>][<?= e($it['barang_idbarang']) ?>]" value="<?= e($it['jumlah']) ?>">
+            <input type="hidden"
+                   name="qty[<?= e($it['idpengadaan']) ?>][<?= e($it['barang_idbarang']) ?>]"
+                   value="<?= e($it['jumlah']) ?>">
         <?php endforeach; ?>
         <p><button>konfirmasi</button> <a href="penerimaan.php">batal</a></p>
     </form>

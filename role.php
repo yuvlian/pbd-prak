@@ -17,9 +17,21 @@ if (is_post()) {
                 $err = 'nama_role wajib diisi.';
             } else {
                 if ($cur > 0) {
-                    run_query('update role set nama_role = ? where idrole = ?', 'si', $nama, $cur);
+                    run_query(
+                        'update role
+                            set nama_role = ?
+                            where idrole = ?',
+                        'si',
+                        $nama,
+                        $cur
+                    );
                 } else {
-                    run_query('insert into role (nama_role) values (?)', 's', $nama);
+                    run_query(
+                        'insert into role (nama_role) values
+                            (?)',
+                        's',
+                        $nama
+                    );
                 }
 
                 redirect('role.php');

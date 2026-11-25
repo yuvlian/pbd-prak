@@ -18,7 +18,9 @@ if (is_post()) {
             } else {
                 if ($cur > 0) {
                     run_query(
-                        'update satuan set nama_satuan = ?, status = ? where idsatuan = ?',
+                        'update satuan
+                            set nama_satuan = ?, status = ?
+                            where idsatuan = ?',
                         'sii',
                         $nama,
                         post_int('status'),
@@ -26,7 +28,8 @@ if (is_post()) {
                     );
                 } else {
                     run_query(
-                        'insert into satuan (nama_satuan, status) values (?, ?)',
+                        'insert into satuan (nama_satuan, status) values
+                            (?, ?)',
                         'si',
                         $nama,
                         post_int('status')

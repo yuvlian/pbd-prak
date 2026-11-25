@@ -15,13 +15,30 @@ $subtotal    = 0;
 $vendor_teks = '';
 $user_teks   = '';
 
-$vendors = rows("select * from v_vendor where status_teks = 'Aktif' order by nama_vendor");
-$stok    = rows("select * from v_stok_barang where status_teks = 'Aktif' order by nama");
+$vendors = rows(
+    "select *
+     from v_vendor
+     where status_teks = 'Aktif'
+     order by nama_vendor"
+);
+$stok    = rows(
+    "select *
+     from v_stok_barang
+     where status_teks = 'Aktif'
+     order by nama"
+);
 $users   = rows('select * from v_user order by iduser');
 
 if (is_post()) {
     try {
-        $v = row("select * from v_vendor where idvendor = ? and status_teks = 'Aktif'", 'i', $idvendor);
+        $v = row(
+            "select *
+             from v_vendor
+             where idvendor = ?
+             and status_teks = 'Aktif'",
+            'i',
+            $idvendor
+        );
         $u = row('select * from v_user where iduser = ?', 'i', $iduser);
 
         foreach ($stok as $s) {
@@ -62,8 +79,9 @@ if (is_post()) {
         } else {
             begin();
             run_query(
-                'insert into pengadaan (created_at, user_iduser, status, vendor_idvendor, subtotal_nilai, ppn, total_nilai)
-                 values (now(), ?, ?, ?, ?, 0, ?)',
+                'insert into pengadaan
+                    (created_at, user_iduser, status, vendor_idvendor, subtotal_nilai, ppn, total_nilai) values
+                    (now(), ?, ?, ?, ?, 0, ?)',
                 'isiii',
                 $iduser,
                 'P',
@@ -75,8 +93,9 @@ if (is_post()) {
 
             foreach ($pesanan as $it) {
                 run_query(
-                    'insert into detail_pengadaan (harga_satuan, jumlah, sub_total, barang_idbarang, pengadaan_idpengadaan)
-                     values (?, ?, ?, ?, ?)',
+                    'insert into detail_pengadaan
+                        (harga_satuan, jumlah, sub_total, barang_idbarang, pengadaan_idpengadaan) values
+                        (?, ?, ?, ?, ?)',
                     'iiiii',
                     $it['harga'],
                     $it['jumlah'],
@@ -106,8 +125,9 @@ if (isset($_GET['id'])) {
 
     if ($head) {
         $items = rows(
-            'select * from v_detail_pengadaan
-              where pengadaan_idpengadaan = ' . (int) $head['idpengadaan']
+            'select *
+             from v_detail_pengadaan
+             where pengadaan_idpengadaan = ' . (int) $head['idpengadaan']
         );
     }
 }

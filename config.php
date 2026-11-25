@@ -25,7 +25,6 @@ function rows(string $sql): array
     return $db->query($sql)->fetch_all(MYSQLI_ASSOC);
 }
 
-
 function row(string $sql, string $types = '', ...$params): ?array
 {
     return run_query($sql, $types, ...$params)->get_result()->fetch_assoc();

@@ -17,7 +17,7 @@ if (is_post()) {
             run_query(
                 'update margin_penjualan
                     set persen = ?, status = ?, user_iduser = ?
-                  where idmargin_penjualan = ?',
+                    where idmargin_penjualan = ?',
                 'diii',
                 $persen,
                 $status,
@@ -30,8 +30,8 @@ if (is_post()) {
             }
         } else {
             run_query(
-                'insert into margin_penjualan (created_at, persen, status, user_iduser)
-                 values (now(), ?, ?, ?)',
+                'insert into margin_penjualan (created_at, persen, status, user_iduser) values
+                    (now(), ?, ?, ?)',
                 'dii',
                 $persen,
                 $status,
