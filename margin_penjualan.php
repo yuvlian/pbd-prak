@@ -107,7 +107,6 @@ page_start('margin_penjualan', $err);
         <th>created_at</th>
         <th>persen</th>
         <th>status_teks</th>
-        <th>iduser</th>
         <th>username</th>
         <th>updated_at</th>
         <th>aksi</th>
@@ -118,7 +117,6 @@ page_start('margin_penjualan', $err);
             <td><?= e($r['created_at']) ?></td>
             <td><?= e($r['persen']) ?></td>
             <td><?= e($r['status_teks']) ?></td>
-            <td><?= e($r['iduser']) ?></td>
             <td><?= e($r['username']) ?></td>
             <td><?= e($r['updated_at']) ?></td>
             <td>

@@ -115,7 +115,6 @@ page_start('barang', $err);
         <th>idbarang</th>
         <th>jenis_teks</th>
         <th>nama</th>
-        <th>idsatuan</th>
         <th>nama_satuan</th>
         <th>status_teks</th>
         <th>harga</th>
@@ -127,7 +126,6 @@ page_start('barang', $err);
             <td><?= e($r['idbarang']) ?></td>
             <td><?= e($r['jenis_teks']) ?></td>
             <td><?= e($r['nama']) ?></td>
-            <td><?= e($r['idsatuan']) ?></td>
             <td><?= e($r['nama_satuan']) ?></td>
             <td><?= e($r['status_teks']) ?></td>
             <td><?= e($r['harga']) ?></td>

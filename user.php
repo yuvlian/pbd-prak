@@ -81,7 +81,6 @@ page_start('user', $err);
     <tr>
         <th>iduser</th>
         <th>username</th>
-        <th>idrole</th>
         <th>nama_role</th>
         <th>aksi</th>
     </tr>
@@ -89,7 +88,6 @@ page_start('user', $err);
         <tr>
             <td><?= e($r['iduser']) ?></td>
             <td><?= e($r['username']) ?></td>
-            <td><?= e($r['idrole']) ?></td>
             <td><?= e($r['nama_role']) ?></td>
             <td>
                 <a href="user.php?edit=<?= e($r['iduser']) ?>">edit</a>
