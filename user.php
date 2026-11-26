@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('user');
+
 $err = '';
 $cur = post_int('cur');
 
@@ -11,8 +13,12 @@ if (is_post()) {
         $password = post_str('password');
 
         if (post_str('act') === 'delete') {
-            run_query('delete from user where iduser = ?', 'i', $cur);
-            redirect('user.php');
+            if ($cur === (int) current_user()['iduser']) {
+                $err = 'tidak bisa menghapus user yang sedang login.';
+            } else {
+                run_query('delete from user where iduser = ?', 'i', $cur);
+                redirect('user.php');
+            }
         } elseif ($username === '') {
             $err = 'username wajib diisi.';
         } elseif ($cur === 0 && $password === '') {

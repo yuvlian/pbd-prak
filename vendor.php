@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('vendor');
+
 $err = '';
 $cur = post_int('cur');
 

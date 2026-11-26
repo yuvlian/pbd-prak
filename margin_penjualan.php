@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('margin_penjualan');
+
 $err = '';
 $cur = post_int('cur');
 

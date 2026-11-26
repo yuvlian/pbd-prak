@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('pengadaan');
+
 $err  = '';
 $act  = is_post() ? post_str('act') : '';
 $qty  = isset($_POST['qty']) && is_array($_POST['qty']) ? $_POST['qty'] : [];

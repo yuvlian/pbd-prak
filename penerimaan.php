@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('penerimaan');
+
 $err = '';
 
 $users = rows('select * from v_user order by iduser');

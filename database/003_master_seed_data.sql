@@ -9,7 +9,8 @@ insert into user (iduser, username, password, role_idrole) values
     (201, 'rina.wijaya', sha2('Rina@2026', 256), 101),
     (202, 'budi.santoso', sha2('Budi@2026', 256), 102),
     (203, 'sari.dewi', sha2('Sari@2026', 256), 103),
-    (204, 'dedi.pratama', sha2('Dedi@2026', 256), 104);
+    (204, 'dedi.pratama', sha2('Dedi@2026', 256), 104),
+    (205, 'admin', sha2('password', 256), 102);
 
 insert into satuan (idsatuan, nama_satuan, status) values
     (301, 'Tablet', 1),

@@ -2,6 +2,8 @@
 
 require 'config.php';
 
+wajib_akses('kartu_stok');
+
 $rows = rows('select * from v_kartu_stok order by idkartu_stok desc');
 
 page_start('kartu_stok');
